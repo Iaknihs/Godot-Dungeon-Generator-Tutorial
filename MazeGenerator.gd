@@ -11,7 +11,6 @@ enum Tiles {
 
 export var width = 41
 export var height = 18
-export var tick_duration = 0.03
 
 var start_x
 var start_y
@@ -55,14 +54,16 @@ func _ready():
 	set_cell(end_x, end_y, Tiles.brown)
 	
 	rdf_init()
-
-var time_since_tick = 0.0
-func _physics_process(delta):
-	if not generation_complete:
-		time_since_tick += delta
-		if time_since_tick > tick_duration:
-			time_since_tick -= tick_duration
-			rdf_step()
+	
+	while not generation_complete:
+		rdf_step()
+	
+	for x in range(width):
+		for y in range(height):
+			if get_cell(x, y) == Tiles.blue:
+				set_cell(x, y, Tiles.white)
+	
+	$Player.position = 32 * Vector2(start_x+0.5, start_y+0.5)
 
 
 var rdf_stack = []
