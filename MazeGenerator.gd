@@ -63,6 +63,8 @@ func _ready():
 			if get_cell(x, y) == Tiles.blue:
 				set_cell(x, y, Tiles.white)
 	
+	room_generator()
+	
 	$Player.position = 32 * Vector2(start_x+0.5, start_y+0.5)
 
 
@@ -109,8 +111,84 @@ func rdf_step():
 			set_cellv(rdf_stack.back(), Tiles.red)
 		
 
-
-
+func room_generator():
+	var changed = true
+	while changed:
+		changed = false
+		for i in range(width):
+			for j in range(height):
+				if get_cell(i, j) == Tiles.black:
+					var count = 0
+					for i_off in [-1, 0, 1]:
+						for j_off in [-1, 0, 1]:
+							if i_off == 0 and j_off == 0:
+								continue
+							if [Tiles.black, Tiles.brown].has(get_cell(i+i_off, j+j_off)):
+								count += 1
+					if count < 2:
+						set_cell(i, j, Tiles.blue)
+						changed = true
+	
+	for i in range(width):
+		for j in range(height):
+			if get_cell(i, j) == Tiles.black:
+				for off in [Vector2(0, 1), Vector2(0, -1), Vector2(1, 0), Vector2(-1, 0)]:
+					if get_cellv(Vector2(i, j)+off) == Tiles.blue:
+						set_cell(i,j, Tiles.red)
+						break
+	
+	for i in range(width):
+		for j in range(height):
+			if [Tiles.blue, Tiles.red].has(get_cell(i, j)):
+				set_cell(i, j, Tiles.white)
+	
+	for i in range(width):
+		for j in range(height):
+			if get_cell(i, j) != Tiles.white:
+				continue
+			var in_room = true
+			for i_off in [-1, 0, 1]:
+				for j_off in [-1, 0, 1]:
+					if get_cell(i+i_off, j+j_off) == Tiles.black:
+						in_room = false
+						break
+				if not in_room:
+					break
+			if in_room:
+				set_cell(i, j, Tiles.red)
+	
+	for i in range(width):
+		for j in range(height):
+			if get_cell(i, j) != Tiles.white:
+				continue
+			var marked = false
+			for i_off in [-1, 0, 1]:
+				for j_off in [-1, 0, 1]:
+					if get_cell(i+i_off, j+j_off) == Tiles.red:
+						set_cell(i, j, Tiles.blue)
+						marked = true
+						break
+				if marked:
+					break
+	
+	for i in range(width):
+		for j in range(height):
+			if get_cell(i, j) != Tiles.white:
+				continue
+			var marked = false
+			for i_off in [-1, 0, 1]:
+				for j_off in [-1, 0, 1]:
+					if get_cell(i+i_off, j+j_off) == Tiles.blue:
+						set_cell(i, j, Tiles.brown)
+						marked = true
+						break
+				if marked:
+					break
+	
+	for i in range(width):
+		for j in range(height):
+			if [Tiles.blue, Tiles.red].has(get_cell(i, j)):
+				set_cell(i, j, Tiles.white)
 
 
 
